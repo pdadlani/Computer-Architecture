@@ -5,6 +5,7 @@ import sys
 LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
+MUL = 0b10100010
 
 class CPU:
     """Main CPU class."""
@@ -41,7 +42,8 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        elif op == 'MUL':
+            self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -72,18 +74,20 @@ class CPU:
         while running:
             # read the mar stored in PC, and store in IR
             ir = self.ram_read(self.pc)
-            print('ir', ir)
+            operand_a = self.ram_read(self.pc + 1)
+            operand_b = self.ram_read(self.pc + 2)
 
             if ir == LDI:
-                operand_a = self.ram_read(self.pc + 1)
-                operand_b = self.ram_read(self.pc + 2)
+
                 self.reg[operand_a] = operand_b
                 self.pc += 3
             elif ir == PRN:
-                operand_a = self.ram_read(self.pc + 1)
                 value = self.reg[operand_a]
                 print(value)
                 self.pc += 2
+            elif ir == MUL:
+                self.alu('MUL', operand_a, operand_b)
+                self.pc += 3
             elif ir == HLT:
                 running = False
                 sys.exit()
