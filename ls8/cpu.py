@@ -17,7 +17,7 @@ ADD = 0b10100000
 # AND = 0b10100000
 # CMP = 0b10100111
 # DEC = 0b01100110
-# DIV = 0b10100011
+DIV = 0b10100011
 # INC = 0b01100101
 # MOD = 0b10100100
 MUL = 0b10100010
@@ -25,7 +25,7 @@ MUL = 0b10100010
 # OR = 0b10101010
 # SHL = 0b10101100
 # SHR = 0b10101101
-# SUB = 0b10100001
+SUB = 0b10100001
 # XOR = 0b10101011
 
 # the following explicityy set the PC
@@ -61,7 +61,9 @@ class CPU:
             PRN: self.handle_prn,
             HLT: self.handle_hlt,
             ADD: self.handle_add,
+            SUB: self.handle_sub,
             MUL: self.handle_mul,
+            DIV: self.handle_div,
             PUSH: self.push,
             POP: self.pop,
             CALL: self.call,
@@ -90,8 +92,12 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
+        elif op == 'SUB':
+            self.reg[reg_a] -= self.reg[reg_b]
         elif op == 'MUL':
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == 'DIV':
+            self.reg[reg_a] /= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -112,8 +118,16 @@ class CPU:
         self.alu('ADD', operand_a, operand_b)
         self.pc += 3
 
+    def handle_sub(self, operand_a, operand_b):
+        self.alu('SUB', operand_a, operand_b)
+        self.pc += 3
+
     def handle_mul(self, operand_a, operand_b):
         self.alu('MUL', operand_a, operand_b)
+        self.pc += 3
+
+    def handle_div(self, operand_a, operand_b):
+        self.alu('DIV', operand_a, operand_b)
         self.pc += 3
 
     def push(self, opa, opb):
