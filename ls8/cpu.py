@@ -17,7 +17,8 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0 # program counter, the address of the current instruction
-        self.sp = 0xF4 # stack pointer aka R7 of register
+        self.sp = 7 # stack pointer aka R7 of register
+        self.reg[self.sp] = 0xf4
         self.branchtable = {
             LDI: self.handle_ldi,
             PRN: self.handle_prn,
@@ -73,20 +74,20 @@ class CPU:
 
     def push(self, opa, opb):
         # decrement stack pointer
-        self.sp -= 1
+        self.reg[self.sp] -= 1
         # get value from register
         val = self.reg[opa]
         # copy it in memory
-        self.ram_write(self.sp, val)
+        self.ram_write(self.reg[self.sp], val)
         self.pc += 2
 
     def pop(self, opa, opb):
         # copy the value from address pointed to by SP  in memory
-        val = self.ram_read(self.sp)
+        val = self.ram_read(self.reg[self.sp])
         # and save value to given register
         self.reg[opa] = val
         # increment SP
-        self.sp += 1
+        self.reg[self.sp] += 1
         self.pc += 2
 
     def trace(self):
