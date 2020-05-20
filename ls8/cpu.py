@@ -5,13 +5,41 @@ import sys
 LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
-ADD = 0b10100000
-MUL = 0b10100010
 PUSH = 0b01000101
 POP = 0b01000110
-CALL = 0b01010000
-RET = 0b00010001
 ST = 0b10000100
+# LD = 0b10000010
+# NOP = 0b00000000
+# PRA = 0b01001000
+
+# handled by ALU
+ADD = 0b10100000
+# AND = 0b10100000
+# CMP = 0b10100111
+# DEC = 0b01100110
+# DIV = 0b10100011
+# INC = 0b01100101
+# MOD = 0b10100100
+MUL = 0b10100010
+# NOT = 0b01101001
+# OR = 0b10101010
+# SHL = 0b10101100
+# SHR = 0b10101101
+# SUB = 0b10100001
+# XOR = 0b10101011
+
+# the following explicityy set the PC
+CALL = 0b01010000
+# INT = 0b01010010
+IRET = 0b00010011
+# JEQ = 0b01010101
+# JGE = 0b01011010
+# JGT = 0b01010111
+# JLE = 0b01011001
+# JLT = 0b01011000
+# JMP = 0b01010100
+# JNE = 0b01010110
+RET = 0b00010001
 
 class CPU:
     """Main CPU class."""
@@ -21,8 +49,13 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0 # program counter, the address of the current instruction
+        self.fl = 0
         self.sp = 7 # stack pointer aka R7 of register
         self.reg[self.sp] = 0xf4
+        # self.is = 6 # interrupt status aka R6 of register
+        # self.reg[self.is] = ?
+        # self.im = 5 # interrupt mask aka R5 of register
+        # self.reg[self.im] = ?
         self.branchtable = {
             LDI: self.handle_ldi,
             PRN: self.handle_prn,
@@ -34,14 +67,13 @@ class CPU:
             CALL: self.call,
             RET: self.ret,
             ST: self.st,
+            IRET: self.iret,
         }        
 
     def load(self, file):
         """Load a program into memory."""
 
         address = 0
-
-        program = []
 
         with open(file) as f: # what about case to handle if index out of range
             # aka no argument provided to command line
@@ -128,6 +160,17 @@ class CPU:
     def st(self, reg_a, reg_b):
         '''Store value in regB in the address stored in regA.'''
         self.ram_write(self.reg[reg_a], self.reg[reg_b])
+
+    def iret(self):
+        '''return from an interrupt handler.'''
+
+        # registers R6-R0 are popped off the stack, in that order
+        for i in range(6, -1, -1):
+            self.pop(i)
+        # FL register is popped off the stack
+        # return address is popped off the stack and stored in PC
+        # interrupts are re-enabled
+        pass
 
     def trace(self):
         """
