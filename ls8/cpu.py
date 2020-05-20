@@ -8,6 +8,8 @@ HLT = 0b00000001
 MUL = 0b10100010
 PUSH = 0b01000101
 POP = 0b01000110
+CALL = 0b01010000
+RET = 0b00010001
 
 class CPU:
     """Main CPU class."""
@@ -89,6 +91,17 @@ class CPU:
         # increment SP
         self.reg[self.sp] += 1
         self.pc += 2
+
+    def call(self, opa, opb):
+        '''return address gets pushed on the stack'''
+        # compute pc+2, the return address
+        # push the return address on the stack
+        # set the pc to the value in the given register
+        pass
+
+    def ret(self, opa, opb):
+        '''return address gets popped off the stack and stored in PC'''
+        pass
 
     def trace(self):
         """
