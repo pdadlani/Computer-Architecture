@@ -11,6 +11,7 @@ PUSH = 0b01000101
 POP = 0b01000110
 CALL = 0b01010000
 RET = 0b00010001
+ST = 0b10000100
 
 class CPU:
     """Main CPU class."""
@@ -32,6 +33,7 @@ class CPU:
             POP: self.pop,
             CALL: self.call,
             RET: self.ret,
+            ST: self.st,
         }        
 
     def load(self, file):
@@ -122,6 +124,10 @@ class CPU:
 
         # set the pc
         self.pc = return_addr
+
+    def st(self, reg_a, reg_b):
+        '''Store value in regB in the address stored in regA.'''
+        self.ram_write(self.reg[reg_a], self.reg[reg_b])
 
     def trace(self):
         """
