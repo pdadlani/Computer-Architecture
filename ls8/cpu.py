@@ -15,6 +15,11 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0 # program counter, the address of the current instruction
+        self.branchtable = {}
+        self.branchtable[LDI] = self.handle_ldi
+        self.branchtable[PRN] = self.handle_prn
+        self.branchtable[HLT] = self.handle_hlt
+        self.branchtable[MUL] = self.handle_mul
 
     def load(self, file):
         """Load a program into memory."""
@@ -23,7 +28,8 @@ class CPU:
 
         program = []
 
-        with open(file) as f:
+        with open(file) as f: # what about case to handle if index out of range
+            # aka no argument provided to command line
             for line in f:
                 val = line.split("#")[0].strip()
                 if val == '':
@@ -32,9 +38,9 @@ class CPU:
                 self.ram[address] = cmd
                 address += 1
 
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -46,6 +52,23 @@ class CPU:
             self.reg[reg_a] *= self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
+
+    def handle_ldi(self, operand_a, operand_b):
+        self.reg[operand_a] = operand_b
+        self.pc += 3
+
+    def handle_prn(self, operand_a, operand_b):
+        value = self.reg[operand_a]
+        print(value)
+        self.pc += 2
+
+    def handle_hlt(self, operand_a, operand_b):
+        running = False
+        sys.exit()
+
+    def handle_mul(self, operand_a, operand_b):
+        self.alu('MUL', operand_a, operand_b)
+        self.pc += 3
 
     def trace(self):
         """
@@ -77,20 +100,8 @@ class CPU:
             operand_a = self.ram_read(self.pc + 1)
             operand_b = self.ram_read(self.pc + 2)
 
-            if ir == LDI:
-
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-            elif ir == PRN:
-                value = self.reg[operand_a]
-                print(value)
-                self.pc += 2
-            elif ir == MUL:
-                self.alu('MUL', operand_a, operand_b)
-                self.pc += 3
-            elif ir == HLT:
-                running = False
-                sys.exit()
+            if ir in self.branchtable:
+                self.branchtable[ir](operand_a, operand_b)
             else:
                 print('Unknown instruction')
                 running = False
