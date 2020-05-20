@@ -5,6 +5,7 @@ import sys
 LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
+ADD = 0b10100000
 MUL = 0b10100010
 PUSH = 0b01000101
 POP = 0b01000110
@@ -25,9 +26,12 @@ class CPU:
             LDI: self.handle_ldi,
             PRN: self.handle_prn,
             HLT: self.handle_hlt,
+            ADD: self.handle_add,
             MUL: self.handle_mul,
             PUSH: self.push,
             POP: self.pop,
+            CALL: self.call,
+            RET: self.ret,
         }        
 
     def load(self, file):
@@ -70,6 +74,10 @@ class CPU:
         running = False
         sys.exit()
 
+    def handle_add(self, operand_a, operand_b):
+        self.alu('ADD', operand_a, operand_b)
+        self.pc += 3
+
     def handle_mul(self, operand_a, operand_b):
         self.alu('MUL', operand_a, operand_b)
         self.pc += 3
@@ -94,14 +102,26 @@ class CPU:
 
     def call(self, opa, opb):
         '''return address gets pushed on the stack'''
-        # compute pc+2, the return address
-        # push the return address on the stack
+
+        # compute return address
+        return_addr = self.pc + 2
+
+        # push the return address aka opb aka pc+2 on the stack
+        self.reg[self.sp] -= 1
+        self.ram_write(self.reg[self.sp], return_addr)
+
         # set the pc to the value in the given register
-        pass
+        self.pc = self.reg[opa]
 
     def ret(self, opa, opb):
         '''return address gets popped off the stack and stored in PC'''
-        pass
+
+        # pop return address from top of stack
+        return_addr = self.ram_read(self.reg[self.sp])
+        self.reg[self.sp] += 1
+
+        # set the pc
+        self.pc = return_addr
 
     def trace(self):
         """
@@ -137,6 +157,7 @@ class CPU:
                 self.branchtable[ir](operand_a, operand_b)
             else:
                 print('Unknown instruction')
+                print(ir, self.pc)
                 running = False
 
     def ram_read(self, mar):
