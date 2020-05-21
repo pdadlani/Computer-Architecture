@@ -49,7 +49,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0 # program counter, the address of the current instruction
-        self.fl = 0
+        self.fl = 0b00000000
         self.sp = 7 # stack pointer aka R7 of register
         self.reg[self.sp] = 0xf4
         # self.is = 6 # interrupt status aka R6 of register
@@ -99,7 +99,13 @@ class CPU:
         elif op == 'DIV':
             self.reg[reg_a] /= self.reg[reg_b]
         elif op == 'CMP':
-            pass
+            diff = reg_a - reg_b
+            if diff == 0:
+                self.fl = 0b00000001
+            elif diff > 0:
+                self.fl = 0b00000010
+            elif diff < 0:
+                self.fl = 0b00000100
         elif op == 'AND':
             pass
         elif op == 'OR':
@@ -167,8 +173,9 @@ class CPU:
         # set the pc to the value in the given register
         self.pc = self.reg[self.ram[self.pc + 1]]
 
-    def cmp(self):
-        pass
+    def cmp(self, reg_a, reg_b):
+        self.alu('CMP', reg_a, reg_b)
+        self.pc += 3
 
     def jmp(self):
         pass
