@@ -36,7 +36,7 @@ JEQ = 0b01010101
 # JGE = 0b01011010
 # JGT = 0b01010111
 # JLE = 0b01011001
-# JLT = 0b01011000
+JLT = 0b01011000
 JMP = 0b01010100
 JNE = 0b01010110
 RET = 0b00010001
@@ -70,6 +70,11 @@ class CPU:
             RET: self.ret,
             ST: self.st,
             IRET: self.iret,
+            CMP: self.cmp,
+            JMP: self.jmp,
+            JEQ: self.jeq,
+            JLT: self.jlt,
+            JNE: self.jne,
         }        
 
     def load(self, file):
@@ -99,7 +104,7 @@ class CPU:
         elif op == 'DIV':
             self.reg[reg_a] /= self.reg[reg_b]
         elif op == 'CMP':
-            diff = reg_a - reg_b
+            diff = self.reg[reg_a] - self.reg[reg_b]
             if diff == 0:
                 self.fl = 0b00000001
             elif diff > 0:
@@ -177,14 +182,26 @@ class CPU:
         self.alu('CMP', reg_a, reg_b)
         self.pc += 3
 
-    def jmp(self):
-        pass
+    def jmp(self, reg_a, *kwargs):
+        self.pc = self.reg[reg_a]
 
-    def jeq(self):
-        pass
+    def jeq(self, reg_a, *kwargs):
+        if bin(self.fl)[-1] == '1':
+            self.jmp(reg_a)
+        else:
+            self.pc += 2
 
-    def jne(self):
-        pass
+    def jlt(self, reg_a, *kwargs):
+        if bin(self.fl)[-3] == '1':
+            self.jmp(reg_a)
+        else:
+            self.pc += 2
+
+    def jne(self, reg_a, *kwargs):
+        if bin(self.fl)[-1] == '0':
+            self.jmp(reg_a)
+        else:
+            self.pc += 2
 
     def ret(self, opa, opb):
         '''return address gets popped off the stack and stored in PC'''
