@@ -78,6 +78,13 @@ class CPU:
             JLT: self.jlt,
             JMP: self.jmp,
             JNE: self.jne,
+            AND: self.handle_and,
+            OR: self.handle_or,
+            XOR: self.handle_xor,
+            NOT: self.handle_not,
+            SHL: self.handle_shl,
+            SHR: self.handle_shr,
+            MOD: self.handle_mod,
         }        
 
     def load(self, file):
@@ -115,9 +122,25 @@ class CPU:
             elif diff < 0:
                 self.fl = 0b00000100
         elif op == 'AND':
-            pass
+            ans = self.reg[reg_a] & self.reg[reg_b]
+            self.reg[reg_a] = ans
         elif op == 'OR':
-            pass
+            ans = self.reg[reg_a] | self.reg[reg_b]
+            self.reg[reg_a] = ans
+        elif op == 'XOR':
+            ans = self.reg[reg_a] ^ self.reg[reg_b]
+            self.reg[reg_a] = ans
+        elif op == 'NOT':
+            self.reg[reg_a] = ~self.reg[reg_a]
+        elif op == 'SHL':
+            ans = self.reg[reg_a] << self.reg[reg_b]
+            self.reg[reg_a] = ans
+        elif op == 'SHR':
+            ans = self.reg[reg_a] >> self.reg[reg_b]
+            self.reg[reg_a] = ans
+        elif op == 'MOD':
+            ans = self.reg[reg_a] % self.reg[reg_b]
+            self.reg[reg_a] = ans
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -237,6 +260,34 @@ class CPU:
     def st(self, reg_a, reg_b):
         '''Store value in regB in the address stored in regA.'''
         self.ram_write(self.reg[reg_a], self.reg[reg_b])
+
+    def handle_and(self, operand_a, operand_b):
+        self.alu('AND', operand_a, operand_b)
+        self.pc += 3
+
+    def handle_or(self, operand_a, operand_b):
+        self.alu('OR', operand_a, operand_b)
+        self.pc += 3 
+
+    def handle_xor(self, operand_a, operand_b):
+        self.alu('XOR', operand_a, operand_b)
+        self.pc += 3
+
+    def handle_not(self, operand_a, operand_b):
+        self.alu('NOT', operand_a, operand_b)
+        self.pc += 2
+
+    def handle_shl(self, operand_a, operand_b):
+        self.alu('SHL', operand_a, operand_b)
+        self.pc += 3
+
+    def handle_shr(self, operand_a, operand_b):
+        self.alu('SHR', operand_a, operand_b)
+        self.pc += 3
+
+    def handle_mod(self, operand_a, operand_b):
+        self.alu('MOD', operand_a, operand_b)
+        self.pc += 3
 
     def iret(self):
         '''return from an interrupt handler.'''
