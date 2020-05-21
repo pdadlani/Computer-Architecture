@@ -33,9 +33,9 @@ CALL = 0b01010000
 # INT = 0b01010010
 IRET = 0b00010011
 JEQ = 0b01010101
-# JGE = 0b01011010
-# JGT = 0b01010111
-# JLE = 0b01011001
+JGE = 0b01011010
+JGT = 0b01010111
+JLE = 0b01011001
 JLT = 0b01011000
 JMP = 0b01010100
 JNE = 0b01010110
@@ -49,7 +49,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0 # program counter, the address of the current instruction
-        self.fl = 0b00000000
+        self.fl = 0b00000000 # 00000LGE
         self.sp = 7 # stack pointer aka R7 of register
         self.reg[self.sp] = 0xf4
         # self.is = 6 # interrupt status aka R6 of register
@@ -71,9 +71,12 @@ class CPU:
             ST: self.st,
             IRET: self.iret,
             CMP: self.cmp,
-            JMP: self.jmp,
             JEQ: self.jeq,
+            JGE: self.jge,
+            JGT: self.jgt,
+            JLE: self.jle,
             JLT: self.jlt,
+            JMP: self.jmp,
             JNE: self.jne,
         }        
 
@@ -190,7 +193,25 @@ class CPU:
             self.jmp(reg_a)
         else:
             self.pc += 2
+    
+    def jge(self, reg_a, *kwargs):
+        if bin(self.fl)[-1] == '1' or bin(self.fl)[-2] == '1':
+            self.jmp(reg_a)
+        else:
+            self.pc += 2
 
+    def jgt(self, reg_a, *kwargs):
+        if bin(self.fl)[-2] == '1':
+            self.jmp(reg_a)
+        else:
+            self.pc += 2
+
+    def jle(self, reg_a, *kwargs):
+        if bin(self.fl)[-1] == '1' or bin(self.fl)[-3] == '1':
+            self.jmp(reg_a)
+        else:
+            self.pc += 2
+    
     def jlt(self, reg_a, *kwargs):
         if bin(self.fl)[-3] == '1':
             self.jmp(reg_a)
