@@ -14,31 +14,31 @@ ST = 0b10000100
 
 # handled by ALU
 ADD = 0b10100000
-# AND = 0b10100000
-# CMP = 0b10100111
+AND = 0b10100000
+CMP = 0b10100111
 # DEC = 0b01100110
 DIV = 0b10100011
 # INC = 0b01100101
-# MOD = 0b10100100
+MOD = 0b10100100
 MUL = 0b10100010
-# NOT = 0b01101001
-# OR = 0b10101010
-# SHL = 0b10101100
-# SHR = 0b10101101
+NOT = 0b01101001
+OR = 0b10101010
+SHL = 0b10101100
+SHR = 0b10101101
 SUB = 0b10100001
-# XOR = 0b10101011
+XOR = 0b10101011
 
 # the following explicityy set the PC
 CALL = 0b01010000
 # INT = 0b01010010
 IRET = 0b00010011
-# JEQ = 0b01010101
+JEQ = 0b01010101
 # JGE = 0b01011010
 # JGT = 0b01010111
 # JLE = 0b01011001
 # JLT = 0b01011000
-# JMP = 0b01010100
-# JNE = 0b01010110
+JMP = 0b01010100
+JNE = 0b01010110
 RET = 0b00010001
 
 class CPU:
@@ -98,6 +98,12 @@ class CPU:
             self.reg[reg_a] *= self.reg[reg_b]
         elif op == 'DIV':
             self.reg[reg_a] /= self.reg[reg_b]
+        elif op == 'CMP':
+            pass
+        elif op == 'AND':
+            pass
+        elif op == 'OR':
+            pass
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -159,7 +165,19 @@ class CPU:
         self.ram_write(self.reg[self.sp], return_addr)
 
         # set the pc to the value in the given register
-        self.pc = self.reg[opa]
+        self.pc = self.reg[self.ram[self.pc + 1]]
+
+    def cmp(self):
+        pass
+
+    def jmp(self):
+        pass
+
+    def jeq(self):
+        pass
+
+    def jne(self):
+        pass
 
     def ret(self, opa, opb):
         '''return address gets popped off the stack and stored in PC'''
