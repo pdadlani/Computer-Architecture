@@ -212,40 +212,46 @@ class CPU:
         self.pc = self.reg[reg_a]
 
     def jeq(self, reg_a, *kwargs):
-        if bin(self.fl)[-1] == '1':
+        '''If equal flag is set (true), jump to the address stored in given register.'''
+        if self.fl & 0b00000001:
             self.jmp(reg_a)
         else:
             self.pc += 2
     
     def jge(self, reg_a, *kwargs):
-        if bin(self.fl)[-1] == '1' or bin(self.fl)[-2] == '1':
+        '''If greater than or equal flag is set (true), jump to address stored in given register.'''
+        if self.fl >> 1 == 1 or self.fl & 0b00000001:
             self.jmp(reg_a)
         else:
             self.pc += 2
 
     def jgt(self, reg_a, *kwargs):
-        if bin(self.fl)[-2] == '1':
+        '''If greater than flag is set (true), jump to address stored in given register.'''
+        if self.fl >> 1 == 1:
             self.jmp(reg_a)
         else:
             self.pc += 2
 
     def jle(self, reg_a, *kwargs):
-        if bin(self.fl)[-1] == '1' or bin(self.fl)[-3] == '1':
+        '''If less than or equal flag is set (true), jump to address stored in given register.''' 
+        if self.fl >> 2 or self.fl & 0b00000001:
             self.jmp(reg_a)
         else:
             self.pc += 2
     
     def jlt(self, reg_a, *kwargs):
-        if bin(self.fl)[-3] == '1':
+        '''If less than flag is set (true), jump to address stored in given register.'''
+        if self.fl >> 2:
             self.jmp(reg_a)
         else:
             self.pc += 2
 
     def jne(self, reg_a, *kwargs):
-        if bin(self.fl)[-1] == '0':
-            self.jmp(reg_a)
-        else:
+        '''If equal flag is clear (false, 0), jump to address stored in given register.'''
+        if self.fl & 0b00000001:
             self.pc += 2
+        else:
+            self.jmp(reg_a)
 
     def ret(self, opa, opb):
         '''return address gets popped off the stack and stored in PC'''
